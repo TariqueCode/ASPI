@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>আসহাব সিরাজ পলিটেকনিক ইনস্টিটিউট (ASPI) - BTEB Code: 70201</title>
+    <script>
+      // Prevent "Cannot set property fetch of #<Window> which has only a getter" error in iframe sandbox
+      try {
+        const _origFetch = window.fetch;
+        let _currentFetch = _origFetch;
+        Object.defineProperty(window, 'fetch', {
+          get() {
+            return _currentFetch || _origFetch;
+          },
+          set(val) {
+            _currentFetch = val;
+          },
+          configurable: true,
+          enumerable: true
+        });
+      } catch (e) {
+        // Fallback catch if window.fetch cannot be re-defined
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-8N8nIqka.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BytXeRGe.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+
