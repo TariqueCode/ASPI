@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="bn" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASPI - অ্যাডমিন ড্যাশবোর্ড</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { bn: ['Hind Siliguri', 'sans-serif'] }, colors: { brand: { blue: '#1e3a8a', gold: '#facc15' } } } } }
+    </script>
+    <style> 
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; } 
+        .dark body { background-color: #0f172a; }
+        [x-cloak] { display: none !important; } 
+        ::-webkit-scrollbar { width: 6px; } 
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        /* Fix for date picker icon in dark mode */
+        ::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; cursor: pointer; }
+    </style>
+</head>
+
+<body class="text-slate-800 dark:text-slate-200 transition-colors duration-300" x-data="adminApp">
+    
+    <div x-show="sidebarOpen" @click="sidebarOpen = false" x-transition.opacity class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden" x-cloak></div>
+
+    <!-- Floating Save Button -->
+    <div class="fixed bottom-6 right-6 z-40">
+        <button @click="saveData()" class="bg-brand-blue dark:bg-brand-gold hover:opacity-90 text-white dark:text-slate-900 rounded-full p-4 shadow-[0_10px_20px_rgba(30,58,138,0.3)] flex items-center justify-center transform hover:scale-105 active:scale-95 transition-all group border-2 border-white dark:border-slate-800">
+            <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+            <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 font-bold ml-0 group-hover:ml-2">পরিবর্তন সেভ করুন</span>
+        </button>
+    </div>
+
+    <div class="flex h-screen w-full overflow-hidden">
+        
+        <!-- Sidebar -->
+        <aside class="fixed inset-y-0 left-0 bg-white dark:bg-slate-900 w-72 transform transition-transform duration-300 lg:translate-x-0 lg:static lg:inset-0 z-50 lg:z-40 border-r border-slate-200 dark:border-slate-800 shadow-2xl lg:shadow-none flex flex-col" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+            <div class="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-brand-blue dark:bg-brand-gold text-white dark:text-slate-900 rounded-xl flex items-center justify-center text-2xl shadow-md"><i class="fa-solid fa-bolt"></i></div>
+                    <div><h2 class="font-black text-lg text-slate-900 dark:text-white">ASPI ড্যাশবোর্ড</h2><p class="text-[10px] font-bold text-slate-500">অ্যাডমিন প্যানেল</p></div>
+                </div>
+                <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-red-500 text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
+                <button @click="activeTab = 'dashboard'; sidebarOpen = false" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all font-bold text-sm group" :class="activeTab === 'dashboard' ? 'bg-brand-blue text-white dark:bg-brand-gold dark:text-slate-900 shadow-md translate-x-2' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'"><i class="fa-solid fa-chart-pie w-6 text-center"></i> <span class="ml-2">ওভারভিউ</span></button>
+                
+                <!-- Admission Menu with Notification Badge -->
+                <button @click="openAdmissions()" class="w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all font-bold text-sm group" :class="activeTab === 'admissions' ? 'bg-brand-blue text-white dark:bg-brand-gold dark:text-slate-900 shadow-md translate-x-2' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'">
+                    <div class="flex items-center"><i class="fa-solid fa-user-graduate w-6 text-center"></i> <span class="ml-2">ভর্তি আবেদন</span></div>
+                    <span x-show="unreadAdmissions > 0" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse shadow-sm" x-text="unreadAdmissions"></span>
+                </button>
+
+                <button @click="activeTab = 'messages'; sidebarOpen = false" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all font-bold text-sm group" :class="activeTab === 'messages' ? 'bg-brand-blue text-white dark:bg-brand-gold dark:text-slate-900 shadow-md translate-x-2' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'"><i class="fa-solid fa-quote-left w-6 text-center"></i> <span class="ml-2">প্রতিষ্ঠানের বাণী</span></button>
+                <button @click="activeTab = 'notices'; sidebarOpen = false" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all font-bold text-sm group" :class="activeTab === 'notices' ? 'bg-brand-blue text-white dark:bg-brand-gold dark:text-slate-900 shadow-md translate-x-2' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'"><i class="fa-solid fa-clipboard-list w-6 text-center"></i> <span class="ml-2">নোটিশ ও পিডিএফ</span></button>
+                <button @click="activeTab = 'events'; sidebarOpen = false" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all font-bold text-sm group" :class="activeTab === 'events' ? 'bg-brand-blue text-white dark:bg-brand-gold dark:text-slate-900 shadow-md translate-x-2' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'"><i class="fa-solid fa-images w-6 text-center"></i> <span class="ml-2">গ্যালারি ও ইভেন্ট</span></button>
+                <button @click="activeTab = 'teachers'; sidebarOpen = false" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all font-bold text-sm group" :class="activeTab === 'teachers' ? 'bg-brand-blue text-white dark:bg-brand-gold dark:text-slate-900 shadow-md translate-x-2' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'"><i class="fa-solid fa-user-tie w-6 text-center"></i> <span class="ml-2">শিক্ষক তালিকা</span></button>
+                <button @click="activeTab = 'settings'; sidebarOpen = false" class="w-full flex items-center px-4 py-3.5 rounded-xl transition-all font-bold text-sm group" :class="activeTab === 'settings' ? 'bg-brand-blue text-white dark:bg-brand-gold dark:text-slate-900 shadow-md translate-x-2' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'"><i class="fa-solid fa-sliders w-6 text-center"></i> <span class="ml-2">ডিজাইন ও সেটিংস</span></button>
+            </nav>
+            
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800">
+                <div class="hidden lg:flex items-center justify-between mb-4 px-2">
+                    <span class="text-xs font-bold text-slate-500">ডার্ক মোড</span>
+                    <button @click="toggleTheme()" class="w-10 h-6 bg-slate-300 dark:bg-brand-gold rounded-full relative transition-colors"><div class="absolute w-4 h-4 bg-white dark:bg-slate-900 rounded-full top-1 transition-transform shadow-sm" :class="darkMode ? 'right-1' : 'left-1'"></div></button>
+                </div>
+                <a href="../index.html" target="_blank" class="flex items-center justify-center w-full py-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-sm transition-all font-bold text-brand-blue dark:text-brand-gold shadow-sm"><i class="fa-solid fa-globe mr-2"></i> ওয়েবসাইট দেখুন</a>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+            <header class="lg:hidden bg-white dark:bg-slate-800 shadow-sm px-4 py-3 flex items-center justify-between z-30 border-b border-slate-200 dark:border-slate-700 shrink-0">
+                <div class="flex items-center space-x-2 text-brand-blue dark:text-brand-gold"><i class="fa-solid fa-bolt text-xl"></i><span class="font-black text-lg">ASPI Admin</span></div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative cursor-pointer" @click="openAdmissions()">
+                        <i class="fa-solid fa-bell text-xl text-slate-600 dark:text-slate-300"></i>
+                        <span x-show="unreadAdmissions > 0" class="absolute -top-1 -right-2 bg-red-500 text-white text-[9px] px-1.5 rounded-full" x-text="unreadAdmissions"></span>
+                    </div>
+                    <button @click="toggleTheme()" class="text-xl text-slate-500 dark:text-brand-gold"><i class="fa-solid" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i></button>
+                    <button @click="sidebarOpen = !sidebarOpen" class="text-2xl text-slate-600 dark:text-slate-300"><i class="fa-solid fa-bars"></i></button>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-4 sm:p-8 relative z-0 pb-24">
+                <div x-show="isLoading" class="absolute inset-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50"><i class="fa-solid fa-circle-notch fa-spin text-5xl text-brand-blue dark:text-brand-gold"></i></div>
+                
+                <!-- Dashboard -->
+                <div x-show="activeTab === 'dashboard'" x-transition>
+                    <h1 class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white mb-8 border-b-2 border-slate-200 dark:border-slate-700 pb-3 inline-block">ড্যাশবোর্ড ওভারভিউ</h1>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer" @click="openAdmissions()">
+                            <div><p class="text-sm text-slate-500 dark:text-slate-400 font-bold mb-1">নতুন ভর্তি আবেদন</p><h3 class="text-3xl font-black text-red-500" x-text="unreadAdmissions + ' টি'"></h3></div>
+                            <div class="w-14 h-14 bg-red-50 dark:bg-slate-700 text-red-500 rounded-2xl flex items-center justify-center text-2xl"><i class="fa-solid fa-user-graduate"></i></div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:shadow-md transition-shadow">
+                            <div><p class="text-sm text-slate-500 dark:text-slate-400 font-bold mb-1">মোট নোটিশ</p><h3 class="text-3xl font-black text-brand-blue dark:text-brand-gold" x-text="data.notices.length + ' টি'"></h3></div>
+                            <div class="w-14 h-14 bg-blue-50 dark:bg-slate-700 text-brand-blue dark:text-brand-gold rounded-2xl flex items-center justify-center text-2xl"><i class="fa-solid fa-bullhorn"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 max-w-xl">
+                        <div class="flex items-center justify-between mb-5 border-b border-slate-100 dark:border-slate-700 pb-4">
+                            <div><p class="text-lg text-slate-800 dark:text-white font-black mb-1">ভর্তি বিজ্ঞাপন (Marquee)</p><span class="px-3 py-1 text-xs font-black rounded-lg" :class="data.site.admissionOpen ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'" x-text="data.site.admissionOpen ? 'ওয়েবসাইটে চালু আছে' : 'বন্ধ আছে'"></span></div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="data.site.admissionOpen" class="sr-only peer">
+                                <div class="w-14 h-7 bg-slate-300 dark:bg-slate-600 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-2">ভর্তি সংক্রান্ত বিশেষ বার্তা (অপশনাল)</label>
+                            <input type="text" x-model="data.site.admissionNotice" placeholder="যেমন: ভর্তির শেষ তারিখ ২৫ আগস্ট..." class="w-full text-sm border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-3 focus:border-brand-blue dark:focus:border-brand-gold outline-none transition-colors font-bold">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admissions Tab (New) -->
+                <div x-show="activeTab === 'admissions'" x-cloak x-transition>
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-4">
+                        <h1 class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white border-b-2 border-slate-200 dark:border-slate-700 pb-3 inline-block">ভর্তি আবেদনকারী</h1>
+                        <button @click="exportToCSV()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold shadow-lg hover:bg-emerald-700 transition-all text-sm flex items-center"><i class="fa-solid fa-file-excel mr-2"></i> এক্সেল ডাউনলোড</button>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-sm text-left whitespace-nowrap">
+                                <thead class="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-900/50">
+                                    <tr>
+                                        <th class="px-6 py-4 font-black">নাম</th>
+                                        <th class="px-6 py-4 font-black">মোবাইল নম্বর</th>
+                                        <th class="px-6 py-4 font-black">কোর্সের ধরন</th>
+                                        <th class="px-6 py-4 font-black">বিষয়/ট্রেড</th>
+                                        <th class="px-6 py-4 font-black text-center">GPA</th>
+                                        <th class="px-6 py-4 font-black text-right">আবেদনের সময়</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                    <template x-if="data.admissions.length === 0">
+                                        <tr><td colspan="6" class="px-6 py-10 text-center font-bold text-slate-500">এখনো কোনো আবেদন আসেনি।</td></tr>
+                                    </template>
+                                    <template x-for="app in data.admissions" :key="app.id">
+                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors" :class="app.is_read == 0 ? 'bg-blue-50/50 dark:bg-blue-900/10 font-bold' : 'text-slate-600 dark:text-slate-300'">
+                                            <td class="px-6 py-4">
+                                                <span x-show="app.is_read == 0" class="w-2 h-2 inline-block bg-red-500 rounded-full mr-2 animate-pulse"></span>
+                                                <span x-text="app.student_name" class="text-base text-slate-900 dark:text-white"></span>
+                                            </td>
+                                            <td class="px-6 py-4" x-text="app.phone"></td>
+                                            <td class="px-6 py-4"><span class="px-2 py-1 text-[10px] uppercase font-black rounded-lg" :class="app.course_type === 'diploma' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'" x-text="app.course_type"></span></td>
+                                            <td class="px-6 py-4" x-text="app.course_name"></td>
+                                            <td class="px-6 py-4 text-center font-black text-slate-900 dark:text-white" x-text="app.ssc_gpa"></td>
+                                            <td class="px-6 py-4 text-right text-xs" x-text="app.created_at"></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div x-show="activeTab === 'messages'" x-cloak x-transition>
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-4">
+                        <h1 class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white border-b-2 border-slate-200 dark:border-slate-700 pb-3 inline-block">প্রতিষ্ঠানের বাণী</h1>
+                        <button @click="addMessage()" class="px-5 py-2.5 bg-brand-blue dark:bg-brand-gold dark:text-slate-900 text-white rounded-xl font-bold shadow-lg hover:opacity-90 transition-all text-sm"><i class="fa-solid fa-plus mr-2"></i> নতুন বাণী যোগ করুন</button>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <template x-for="(msg, index) in data.messages" :key="index">
+                            <div class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-700 relative">
+                                <button @click="deleteItem('messages', index)" class="absolute top-5 right-5 text-red-500 bg-red-50 dark:bg-red-900/30 p-2.5 rounded-xl hover:bg-red-100 transition-colors"><i class="fa-solid fa-trash"></i></button>
+                                
+                                <div class="flex flex-col lg:flex-row gap-8 items-start">
+                                    <div class="w-full lg:w-48 shrink-0">
+                                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 text-center">ছবি আপলোড</label>
+                                        <div class="w-32 h-32 mx-auto bg-slate-100 dark:bg-slate-700 border-2 border-dashed border-slate-300 dark:border-slate-500 rounded-full flex items-center justify-center relative overflow-hidden group/img cursor-pointer shadow-inner">
+                                            <img x-show="msg.image_url" :src="'../' + msg.image_url" class="w-full h-full object-cover">
+                                            <i x-show="!msg.image_url" class="fa-solid fa-user-tie text-4xl text-slate-300 dark:text-slate-500"></i>
+                                            <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"><i class="fa-solid fa-camera text-white text-xl"></i></div>
+                                            <input type="file" accept="image/*" @change="uploadFile($event, msg, 'image_url')" class="absolute inset-0 opacity-0 cursor-pointer">
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 w-full space-y-5 pr-10">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                            <div><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">নাম</label><input type="text" x-model="msg.name" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-2 font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none" placeholder="যেমন: মরহুম সিরাজুল ইসলাম"></div>
+                                            <div><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">পদবি</label><input type="text" x-model="msg.designation" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-2 font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none" placeholder="যেমন: প্রতিষ্ঠাতা"></div>
+                                        </div>
+                                        <div><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">বাণী বা বার্তা</label><textarea x-model="msg.message" rows="4" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-3 font-semibold focus:border-brand-blue dark:focus:border-brand-gold outline-none resize-none"></textarea></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Notices -->
+                <div x-show="activeTab === 'notices'" x-cloak x-transition>
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-4">
+                        <h1 class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white border-b-2 border-slate-200 dark:border-slate-700 pb-3 inline-block">নোটিশ ও পিডিএফ</h1>
+                        <button @click="addNotice()" class="px-5 py-2.5 bg-brand-blue dark:bg-brand-gold dark:text-slate-900 text-white rounded-xl font-bold shadow-lg hover:opacity-90 transition-all text-sm"><i class="fa-solid fa-plus mr-2"></i> নতুন নোটিশ</button>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <template x-for="(notice, index) in data.notices" :key="notice.id || index">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 relative group">
+                                <button @click="deleteItem('notices', index)" class="absolute top-4 right-4 text-red-500 bg-red-50 dark:bg-red-900/30 p-2.5 rounded-xl hover:bg-red-100 transition-colors opacity-0 group-hover:opacity-100"><i class="fa-solid fa-trash"></i></button>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pr-12 mb-4">
+                                    <!-- Changed to modern date picker -->
+                                    <div><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">তারিখ</label><input type="date" x-model="notice.date" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-3 py-2 text-sm font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none"></div>
+                                    <div><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">নোটিশের শিরোনাম</label><input type="text" x-model="notice.title" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-3 py-2 text-sm font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none" placeholder="নোটিশের শিরোনাম"></div>
+                                </div>
+                                
+                                <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div class="flex-1">
+                                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">পিডিএফ / ফাইল আপলোড</label>
+                                        <div class="flex items-center gap-2">
+                                            <input type="file" @change="uploadFile($event, notice, 'file_url')" class="block w-full sm:w-auto text-xs text-slate-500 dark:text-slate-400 file:mr-2 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-bold file:bg-brand-blue/10 dark:file:bg-brand-gold/10 file:text-brand-blue dark:file:text-brand-gold cursor-pointer">
+                                            <span x-show="notice.file_url" class="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-3 py-1.5 rounded-lg font-bold shrink-0"><i class="fa-solid fa-check-circle mr-1"></i> আপলোডেড</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col space-y-2 border-l-2 border-slate-200 dark:border-slate-700 pl-4">
+                                        <label class="flex items-center cursor-pointer"><input type="checkbox" x-model="notice.isNew" class="w-5 h-5 text-brand-blue dark:text-brand-gold rounded border-slate-300 dark:border-slate-600 bg-transparent focus:ring-0"><span class="ml-2 text-sm font-bold text-red-500">'নতুন' ব্যাজ দেখান</span></label>
+                                        <label class="flex items-center cursor-pointer"><input type="checkbox" x-model="notice.showInMarquee" class="w-5 h-5 text-brand-blue dark:text-brand-gold rounded border-slate-300 dark:border-slate-600 bg-transparent focus:ring-0"><span class="ml-2 text-sm font-bold text-slate-700 dark:text-slate-300">অ্যানাউন্সমেন্ট বারে দেখান</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Events -->
+                <div x-show="activeTab === 'events'" x-cloak x-transition>
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8 gap-4">
+                        <h1 class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white border-b-2 border-slate-200 dark:border-slate-700 pb-3 inline-block">গ্যালারি ও ইভেন্ট</h1>
+                        <button @click="addEvent()" class="px-5 py-2.5 bg-emerald-500 text-white rounded-xl font-bold shadow-lg hover:scale-105 transition-all text-sm"><i class="fa-solid fa-image mr-2"></i> নতুন পোস্ট</button>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <template x-for="(event, index) in data.events" :key="event.id || index">
+                            <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 relative group">
+                                <button @click="deleteItem('events', index)" class="absolute top-5 right-5 text-red-500 bg-red-50 dark:bg-red-900/30 p-2.5 rounded-xl hover:bg-red-100 transition-colors opacity-0 group-hover:opacity-100"><i class="fa-solid fa-trash"></i></button>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4 pr-12">
+                                    <div><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">টাইটেল</label><input type="text" x-model="event.title" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-3 py-2 text-sm font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none"></div>
+                                    <div class="flex space-x-4">
+                                        <!-- Changed to modern date picker -->
+                                        <div class="flex-1"><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">তারিখ</label><input type="date" x-model="event.date" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-3 py-2 text-sm font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none"></div>
+                                        <div class="flex-1"><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">ক্যাটাগরি</label><input type="text" x-model="event.category" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-3 py-2 text-sm font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none" placeholder="সেমিনার"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                                    <div class="col-span-1 lg:col-span-7"><label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">বিস্তারিত বিবরণ</label><textarea x-model="event.desc" rows="4" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-3 py-2 text-sm font-medium resize-none focus:border-brand-blue dark:focus:border-brand-gold outline-none"></textarea></div>
+                                    <div class="col-span-1 lg:col-span-5 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-center">
+                                        <div class="w-full h-32 bg-slate-200 dark:bg-slate-700 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-500 flex items-center justify-center relative overflow-hidden mb-3">
+                                            <img x-show="event.file_url" :src="'../' + event.file_url" class="absolute inset-0 w-full h-full object-cover">
+                                            <label class="absolute inset-0 flex flex-col items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+                                                <span class="text-white font-bold text-xs bg-brand-blue dark:bg-brand-gold dark:text-slate-900 px-3 py-1.5 rounded-lg"><i class="fa-solid fa-upload mr-1"></i> ছবি পরিবর্তন</span>
+                                                <input type="file" accept="image/*" class="hidden" @change="uploadFile($event, event, 'file_url')">
+                                            </label>
+                                            <i x-show="!event.file_url" class="fa-solid fa-image text-4xl text-slate-400 dark:text-slate-500"></i>
+                                            <input x-show="!event.file_url" type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" @change="uploadFile($event, event, 'file_url')">
+                                        </div>
+                                        <label class="flex items-center justify-center text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer"><input type="checkbox" x-model="event.showInMarquee" class="w-4 h-4 text-brand-blue dark:text-brand-gold rounded bg-transparent border-slate-300 dark:border-slate-600 mr-2 focus:ring-0"> অ্যানাউন্সমেন্ট বারে দেখান</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Teachers -->
+                <div x-show="activeTab === 'teachers'" x-cloak x-transition>
+                    <div class="flex justify-between items-center mb-8">
+                        <h1 class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white border-b-2 border-slate-200 dark:border-slate-700 pb-3 inline-block">শিক্ষক তালিকা</h1>
+                        <button @click="addTeacher()" class="px-5 py-2.5 bg-brand-blue dark:bg-brand-gold dark:text-slate-900 text-white rounded-xl font-bold shadow-lg hover:scale-105 transition-all text-sm"><i class="fa-solid fa-user-plus mr-2"></i> নতুন শিক্ষক</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <template x-for="(teacher, index) in data.teachers" :key="teacher.id || index">
+                            <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 text-center relative group hover:shadow-md transition-all">
+                                <button @click="deleteItem('teachers', index)" class="absolute top-4 right-4 text-red-400 hover:text-red-500 bg-red-50 dark:bg-red-900/30 w-8 h-8 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-trash"></i></button>
+                                
+                                <div class="w-28 h-28 mx-auto rounded-full bg-slate-100 dark:bg-slate-700 border-4 border-slate-50 dark:border-slate-600 flex items-center justify-center overflow-hidden mb-5 relative shadow-inner">
+                                    <img x-show="teacher.file_url" :src="'../' + teacher.file_url" class="w-full h-full object-cover">
+                                    <i x-show="!teacher.file_url" class="fa-solid fa-user-tie text-3xl text-slate-300 dark:text-slate-500"></i>
+                                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <label class="cursor-pointer text-white text-xs font-bold w-full h-full flex flex-col items-center justify-center"><i class="fa-solid fa-camera mb-1 block text-lg"></i> ছবি<input type="file" class="hidden" accept="image/*" @change="uploadFile($event, teacher, 'file_url')"></label>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div><label class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block mb-0.5 text-left">নাম</label><input type="text" x-model="teacher.name" class="w-full border-b-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white px-1 py-1 text-base font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none text-center"></div>
+                                    <div><label class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block mb-0.5 text-left">পদবি</label><input type="text" x-model="teacher.deg" class="w-full border-b-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-brand-gold px-1 py-1 text-sm font-black text-brand-blue focus:border-brand-blue dark:focus:border-brand-gold outline-none text-center"></div>
+                                    <div><label class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block mb-0.5 text-left">বিভাগ</label><input type="text" x-model="teacher.dept" class="w-full border-b-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white px-1 py-1 text-xs font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none text-center"></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div x-show="activeTab === 'settings'" x-cloak x-transition>
+                    <h1 class="text-3xl font-black text-slate-800 dark:text-white mb-8 border-b-2 border-slate-200 dark:border-slate-700 pb-3 inline-block">ডিজাইন ও সেটিংস</h1>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-6 h-fit">
+                            <h2 class="font-black text-xl border-b border-slate-100 dark:border-slate-700 pb-3 text-slate-800 dark:text-white"><i class="fa-solid fa-paint-roller text-brand-blue dark:text-brand-gold mr-2"></i> ব্র্যান্ডিং ও লোগো</h2>
+                            
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-4">প্রতিষ্ঠানের লোগো পরিবর্তন</label>
+                                <div class="flex items-center space-x-6">
+                                    <div class="w-24 h-24 rounded-full border-4 border-white dark:border-slate-600 shadow-lg bg-white dark:bg-slate-800 flex items-center justify-center overflow-hidden shrink-0 relative group">
+                                        <img x-show="data.site.logo" :src="'../' + data.site.logo" class="w-full h-full object-cover">
+                                        <i x-show="!data.site.logo" class="fa-solid fa-image text-slate-300 dark:text-slate-600 text-3xl"></i>
+                                        <label class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                            <i class="fa-solid fa-camera text-white text-xl"></i>
+                                            <input type="file" accept="image/*" @change="uploadFile($event, data.site, 'logo')" class="hidden">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-2">অফিসিয়াল ফোন নাম্বার</label><input type="text" x-model="data.site.phone" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-3 font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none"></div>
+                            <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-2">অফিসিয়াল ইমেইল</label><input type="text" x-model="data.site.email" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-3 font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none"></div>
+                            <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-400 mb-2">প্রতিষ্ঠানের ঠিকানা</label><textarea x-model="data.site.address" rows="2" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-3 font-bold focus:border-brand-blue dark:focus:border-brand-gold outline-none resize-none"></textarea></div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-6 h-fit">
+                            <h2 class="font-black text-xl border-b border-slate-100 dark:border-slate-700 pb-3 text-slate-800 dark:text-white"><i class="fa-solid fa-font text-brand-blue dark:text-brand-gold mr-2"></i> টাইপোগ্রাফি (ফন্ট)</h2>
+                            
+                            <div class="bg-blue-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-blue-100 dark:border-slate-700 space-y-6">
+                                <div>
+                                    <label class="flex justify-between items-center text-sm font-black text-slate-700 dark:text-slate-300 mb-4">
+                                        <span>ওয়েবসাইটের গ্লোবাল ফন্ট সাইজ</span>
+                                        <span class="text-white bg-brand-blue dark:bg-brand-gold dark:text-slate-900 px-3 py-1 rounded-lg font-black shadow-sm" x-text="data.site.font_size + ' px'"></span>
+                                    </label>
+                                    <input type="range" min="14" max="22" step="1" x-model="data.site.font_size" class="w-full h-3 bg-blue-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-blue dark:accent-brand-gold">
+                                </div>
+                                <div class="pt-5 border-t border-blue-200 dark:border-slate-700">
+                                    <label class="block text-sm font-black text-slate-700 dark:text-slate-300 mb-3">কাস্টম ফন্ট আপলোড (.ttf, .woff)</label>
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                                        <input type="file" accept=".ttf,.woff,.woff2" @change="uploadFile($event, data.site, 'custom_font')" class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-3 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:font-bold file:bg-white dark:file:bg-slate-800 file:text-brand-blue dark:file:text-brand-gold file:shadow-sm cursor-pointer hover:file:bg-white">
+                                        <button x-show="data.site.custom_font" @click="data.site.custom_font = ''" class="px-5 py-2.5 bg-red-500 text-white rounded-xl text-sm font-bold shadow-sm whitespace-nowrap"><i class="fa-solid fa-trash mr-1"></i> রিমুভ</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </main>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('adminApp', () => ({
+                sidebarOpen: false, darkMode: false, activeTab: 'dashboard', isLoading: true,
+                data: { site: { admissionOpen: false, font_size: '16', custom_font: '', logo: '' }, messages: [], notices: [], events: [], teachers: [], courses: [], admissions: [] },
+                
+                get unreadAdmissions() { return this.data.admissions ? this.data.admissions.filter(a => a.is_read == 0).length : 0; },
+                
+                init() { 
+                    if (window.matchMedia('(prefers-color-scheme: dark)').matches) { this.darkMode = true; document.documentElement.classList.add('dark'); }
+                    this.loadData(); 
+                },
+                toggleTheme() {
+                    this.darkMode = !this.darkMode;
+                    if(this.darkMode) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark');
+                },
+                async loadData() {
+                    try {
+                        let res = await fetch('../api.php');
+                        let textData = await res.text();
+                        try {
+                            let jsonData = JSON.parse(textData);
+                            if(!jsonData.error) {
+                                this.data = jsonData;
+                                if(!this.data.site.font_size) this.data.site.font_size = '16';
+                                if(!this.data.messages) this.data.messages = [];
+                                if(!this.data.courses) this.data.courses = [];
+                                if(!this.data.admissions) this.data.admissions = [];
+                            }
+                        } catch (e) { console.error("JSON Error:", textData); }
+                    } catch (e) { alert("ডাটা লোড করতে সমস্যা হয়েছে! db.php চেক করুন।"); }
+                    this.isLoading = false;
+                },
+                async saveData() {
+                    this.isLoading = true;
+                    try {
+                        let res = await fetch('../api.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.data) });
+                        let txt = await res.text(); 
+                        try {
+                            let result = JSON.parse(txt);
+                            if(result.status === 'success') alert('সফলভাবে সেভ হয়েছে!');
+                            else alert('এরর: ' + result.error);
+                        } catch(err) { alert("সার্ভার এরর!"); }
+                    } catch(e) { alert("ইন্টারনেট কানেকশন এরর!"); }
+                    this.isLoading = false;
+                },
+                async uploadFile(event, objRef, propertyName) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    this.isLoading = true;
+                    const formData = new FormData(); formData.append('file', file);
+                    try {
+                        const res = await fetch('../api.php?action=upload', { method: 'POST', body: formData });
+                        const result = await res.json();
+                        if(result.url) { objRef[propertyName] = result.url; alert("আপলোড হয়েছে। 'সেভ করুন' বাটনে ক্লিক করে নিশ্চিত করুন।"); } 
+                        else alert(result.error || "আপলোড ব্যর্থ।");
+                    } catch (e) { alert("আপলোড সমস্যা।"); }
+                    this.isLoading = false;
+                },
+                async openAdmissions() {
+                    this.activeTab = 'admissions';
+                    this.sidebarOpen = false;
+                    if(this.unreadAdmissions > 0) {
+                        try { await fetch('../api.php?action=mark_read'); this.data.admissions.forEach(a => a.is_read = 1); } catch (e) {}
+                    }
+                },
+                exportToCSV() {
+                    if(!this.data.admissions || this.data.admissions.length === 0) { alert("ডাউনলোড করার মতো কোনো ডেটা নেই!"); return; }
+                    let csv = '\uFEFF'; // BOM for UTF-8 Excel support
+                    csv += "নাম,মোবাইল নম্বর,কোর্সের ধরন,বিষয়/ট্রেড,এসএসসি জিপিএ,আবেদনের সময়\n";
+                    this.data.admissions.forEach(a => {
+                        csv += `"${a.student_name}","${a.phone}","${a.course_type === 'diploma' ? 'ডিপ্লোমা' : 'শর্ট কোর্স'}","${a.course_name}","${a.ssc_gpa}","${a.created_at}"\n`;
+                    });
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.setAttribute("download", "ASPI_Admissions.csv");
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                },
+                addMessage() { this.data.messages.unshift({ id: Date.now(), name: '', designation: '', message: '', image_url: '' }); },
+                addNotice() { 
+                    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD for date input
+                    this.data.notices.unshift({ id: Date.now(), title: '', date: today, file_url: '', isNew: true, showInMarquee: true }); 
+                },
+                addEvent() { 
+                    const today = new Date().toISOString().split('T')[0];
+                    this.data.events.unshift({ id: Date.now(), title: '', date: today, category: '', desc: '', file_url: '', showInMarquee: false }); 
+                },
+                addTeacher() { this.data.teachers.unshift({ id: Date.now(), name: '', deg: '', dept: '', file_url: '' }); },
+                deleteItem(type, index) { if(confirm('ডাটাটি মুছে ফেলার বিষয়ে নিশ্চিত?')) this.data[type].splice(index, 1); }
+            }))
+        });
+    </script>
+</body>
+</html>

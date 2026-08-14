@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="bn" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আসহাব সিরাজ পলিটেকনিক ইনস্টিটিউট | ASPI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { bn: ['var(--dynamic-font)', 'Hind Siliguri', 'sans-serif'] },
+                    colors: { brand: { blue: '#020617', gold: '#facc15', green: '#16a34a', night: '#000000' } },
+                    animation: { 'marquee': 'marquee 30s linear infinite', 'float': 'float 6s ease-in-out infinite', 'gradient': 'gradient 8s ease infinite' },
+                    keyframes: { 
+                        marquee: { '0%': { transform: 'translateX(100vw)' }, '100%': { transform: 'translateX(-100%)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-15px)' } },
+                        gradient: { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        :root { --dynamic-font: 'Hind Siliguri'; }
+        body { font-family: var(--dynamic-font), sans-serif; transition: font-size 0.3s ease; }
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); }
+        .dark .glass-card { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); }
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.5); }
+        .dark .glass-nav { background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .bg-gradient-anim { position: fixed; inset: 0; z-index: -2; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
+        .dark .bg-gradient-anim { background: linear-gradient(135deg, #050505 0%, #0f172a 100%); }
+        .marquee-container:hover .animate-marquee { animation-play-state: paused; }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+        [x-cloak] { display: none !important; }
+        .scroll-reveal { opacity: 0; transform: translateY(40px) scale(0.98); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .scroll-reveal.active { opacity: 1; transform: translateY(0) scale(1); }
+    </style>
+</head>
+
+<body class="text-gray-900 dark:text-gray-100 transition-colors duration-500 overflow-x-hidden" x-data="frontendApp" :style="`font-size: ${data.site.font_size || 16}px;`">
+
+    <style x-text="data.site.custom_font ? `@font-face { font-family: 'AdminCustomFont'; src: url('${data.site.custom_font}'); } :root { --dynamic-font: 'AdminCustomFont'; }` : ''"></style>
+
+    <div class="bg-gradient-anim"></div>
+
+    <!-- Header -->
+    <header class="glass-nav sticky top-0 z-50 w-full transition-all duration-300 shadow-sm">
+        <div class="container mx-auto px-4 py-2 sm:py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer group" onclick="window.scrollTo(0,0)">
+                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-full border-4 border-slate-100 dark:border-slate-800 flex items-center justify-center shadow-lg overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-500">
+                    <img :src="data.site.logo" x-show="data.site.logo" class="w-full h-full object-cover">
+                    <i x-show="!data.site.logo" class="fa-solid fa-graduation-cap text-slate-800 text-2xl relative z-10"></i>
+                </div>
+                <div class="flex flex-col justify-center">
+                    <h1 class="text-lg sm:text-2xl lg:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-gray-400 leading-tight">আসহাব সিরাজ <br class="sm:hidden">পলিটেকনিক ইনস্টিটিউট</h1>
+                    <p class="text-[9px] sm:text-[11px] font-bold text-gray-500 dark:text-gray-400 mt-1 tracking-wide uppercase">স্থাপিত: ২০১৯ | পাঠদান অনুমোদন: ২০২১</p>
+                </div>
+            </div>
+
+            <nav class="hidden xl:flex items-center space-x-2 shrink-0">
+                <a href="#about" class="px-4 py-2 font-bold hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all text-sm">বৈশিষ্ট্য</a>
+                <a href="#notice_board" class="px-4 py-2 font-bold hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all text-sm">নোটিশ ও বাণী</a>
+                <a href="#departments" class="px-4 py-2 font-bold hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all text-sm">বিভাগসমূহ</a>
+                <a href="#admission" class="px-4 py-2 font-bold hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all text-sm">ভর্তি তথ্য</a>
+                <a href="#events" class="px-4 py-2 font-bold hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all text-sm">গ্যালারি</a>
+                <button @click="toggleTheme()" class="ml-4 w-10 h-10 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-800 dark:text-white hover:scale-110 transition-transform"><i class="fa-solid" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i></button>
+            </nav>
+
+            <div class="xl:hidden flex items-center space-x-2">
+                <button @click="toggleTheme()" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-800 dark:text-white"><i class="fa-solid" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i></button>
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="w-10 h-10 flex items-center justify-center text-2xl text-slate-800 dark:text-white focus:outline-none bg-slate-100 dark:bg-white/10 rounded-full"><i class="fa-solid" :class="mobileMenuOpen ? 'fa-xmark' : 'fa-bars-staggered'"></i></button>
+            </div>
+        </div>
+        
+        <div x-show="mobileMenuOpen" x-collapse class="xl:hidden absolute top-full left-0 w-full glass-card border-t-0 rounded-b-3xl shadow-2xl p-4 flex flex-col space-y-2 z-50">
+            <a href="#about" @click="mobileMenuOpen = false" class="block px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl font-bold text-center border border-slate-100 dark:border-slate-700">বৈশিষ্ট্য</a>
+            <a href="#notice_board" @click="mobileMenuOpen = false" class="block px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl font-bold text-center border border-slate-100 dark:border-slate-700">নোটিশ বোর্ড ও বাণী</a>
+            <a href="#departments" @click="mobileMenuOpen = false" class="block px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl font-bold text-center border border-slate-100 dark:border-slate-700">বিভাগসমূহ ও শর্ট কোর্স</a>
+            <a href="#admission" @click="mobileMenuOpen = false" class="block px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl font-bold text-center border border-slate-100 dark:border-slate-700">ভর্তি তথ্য</a>
+            <a href="#events" @click="mobileMenuOpen = false" class="block px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl font-bold text-center border border-slate-100 dark:border-slate-700">গ্যালারি ও ইভেন্ট</a>
+        </div>
+    </header>
+
+    <!-- Marquee -->
+    <div class="glass-card border-x-0 border-t-0 flex items-stretch h-12 sm:h-14 overflow-hidden shadow-sm relative z-40 marquee-container bg-gradient-to-r from-slate-900 to-slate-800 dark:from-indigo-900 dark:to-slate-900 text-white">
+        <div class="bg-red-600 dark:bg-brand-gold dark:text-slate-900 font-black px-4 sm:px-8 flex items-center justify-center z-10 whitespace-nowrap shadow-2xl tracking-wider text-xs sm:text-base uppercase">
+            <i class="fa-solid fa-bolt mr-2 animate-pulse text-yellow-300"></i> <span class="hidden sm:inline">ফ্ল্যাশ আপডেট</span>
+        </div>
+        <div class="flex-grow flex items-center relative overflow-hidden">
+            <div class="absolute whitespace-nowrap animate-marquee flex space-x-12 sm:space-x-16 font-bold text-xs sm:text-sm">
+                <template x-for="notice in data.notices.filter(n => n.showInMarquee)" :key="'mn-'+notice.id">
+                    <a :href="notice.file_url || '#notice_board'" target="_blank" class="hover:text-yellow-400 dark:hover:text-white flex items-center transition-colors">
+                        <span class="w-2 h-2 rounded-full bg-yellow-400 dark:bg-white mr-2 shadow-[0_0_8px_#facc15]"></span><span x-text="notice.title"></span>
+                    </a>
+                </template>
+                <template x-for="event in data.events.filter(e => e.showInMarquee)" :key="'me-'+event.id">
+                    <a href="#events" class="hover:text-green-400 dark:hover:text-white flex items-center transition-colors">
+                        <span class="w-2 h-2 rounded-full bg-green-400 dark:bg-white mr-2 shadow-[0_0_8px_#4ade80]"></span><span x-text="event.title"></span>
+                    </a>
+                </template>
+                <span x-show="data.site.admissionOpen" class="flex items-center text-yellow-300 dark:text-white cursor-pointer" @click="admissionModal = true">
+                    <span class="w-2 h-2 rounded-full bg-red-500 mr-2 animate-ping"></span>ডিপ্লোমা ও শর্ট কোর্সে ভর্তি চলছে! এখনই অনলাইনে আবেদন করুন।
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admission Application Modal -->
+    <div x-show="admissionModal" class="fixed inset-0 z-[100] flex items-center justify-center px-4" x-cloak>
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="admissionModal = false" x-transition.opacity></div>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl z-10 overflow-hidden transform transition-all" x-transition>
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 flex justify-between items-center text-white">
+                <h3 class="text-2xl font-black"><i class="fa-solid fa-graduation-cap mr-2 text-yellow-300"></i> অনলাইন ভর্তি আবেদন</h3>
+                <button @click="admissionModal = false" class="text-white hover:text-red-300 text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6">
+                <form @submit.prevent="submitAdmission">
+                    <div class="space-y-4">
+                        <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">শিক্ষার্থীর পূর্ণ নাম *</label><input type="text" x-model="admissionForm.name" required class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-2 font-bold focus:border-indigo-500 outline-none"></div>
+                        <div><label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">মোবাইল নম্বর *</label><input type="tel" x-model="admissionForm.phone" required class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-2 font-bold focus:border-indigo-500 outline-none" placeholder="01XXX-XXXXXX"></div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">প্রোগ্রাম ধরন *</label>
+                                <select x-model="admissionForm.course_type" required class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-2 font-bold focus:border-indigo-500 outline-none">
+                                    <option value="" disabled class="text-slate-900">নির্বাচন করুন</option>
+                                    <option value="diploma" class="text-slate-900">ডিপ্লোমা ইন ইঞ্জিনিয়ারিং</option>
+                                    <option value="nsda" class="text-slate-900">NSDA শর্ট কোর্স</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">এসএসসি জিপিএ</label>
+                                <input type="text" x-model="admissionForm.gpa" class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-2 font-bold focus:border-indigo-500 outline-none" placeholder="যেমন: 4.50">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">কোর্স / ট্রেড *</label>
+                            <select x-model="admissionForm.course_name" required class="w-full border-2 border-slate-200 dark:border-slate-600 bg-transparent dark:text-white rounded-xl px-4 py-2 font-bold focus:border-indigo-500 outline-none">
+                                <option value="" disabled class="text-slate-900">কোর্স নির্বাচন করুন</option>
+                                <template x-for="course in data.courses.filter(c => c.type === admissionForm.course_type)">
+                                    <option :value="course.title" x-text="course.title" class="text-slate-900"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full mt-8 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl shadow-lg transition-all flex justify-center items-center">
+                        <span x-show="!isSubmitting">আবেদন সাবমিট করুন <i class="fa-solid fa-paper-plane ml-2"></i></span>
+                        <i x-show="isSubmitting" class="fa-solid fa-circle-notch fa-spin text-xl"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-8 sm:py-12 space-y-16 sm:space-y-24">
+        
+        <!-- Hero Section -->
+        <section id="about" class="relative min-h-[60vh] flex items-center justify-center rounded-[2rem] sm:rounded-[3rem] overflow-hidden p-6 sm:p-12 glass-card shadow-xl scroll-reveal" x-intersect="$el.classList.add('active')">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center w-full z-10">
+                <div class="space-y-6 sm:space-y-8 text-center lg:text-left">
+                    <div class="inline-flex items-center px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-white dark:bg-white/10 text-slate-800 dark:text-white font-black text-[10px] sm:text-xs shadow-md border border-slate-200 dark:border-white/20 uppercase tracking-widest"><i class="fa-solid fa-award text-yellow-500 mr-2 text-base"></i> BTEB ও NSDA অনুমোদিত</div>
+                    <h2 class="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-slate-900 dark:text-white leading-[1.1] tracking-tight">দক্ষ জনশক্তি গড়ার <br class="hidden lg:block"><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-brand-gold dark:via-yellow-300 dark:to-yellow-500 bg-[length:200%_auto] animate-gradient">উজ্জ্বল কারিগর</span></h2>
+                    <p class="text-sm sm:text-lg text-slate-600 dark:text-slate-300 font-bold max-w-lg mx-auto lg:mx-0 leading-relaxed">পরিচালনায়: আসহাব সিরাজ ফাউন্ডেশন। আধুনিক প্রযুক্তিনির্ভর শিক্ষায় আপনার ভবিষ্যৎ গড়ুন। আমরা নিশ্চিত করি যুগোপযোগী কারিগরি শিক্ষা ও হাতে-কলমে বাস্তবমুখী প্রশিক্ষণ।</p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                        <button @click="admissionModal = true" x-show="data.site.admissionOpen" class="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-900 dark:bg-brand-gold text-white dark:text-slate-900 font-black rounded-2xl shadow-xl hover:-translate-y-1 transition-all duration-300 text-sm sm:text-base"><i class="fa-solid fa-rocket mr-2"></i> অনলাইনে ভর্তি হোন</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div class="bg-white dark:bg-slate-800/80 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg border border-slate-100 dark:border-white/5 hover:-translate-y-1.5 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 dark:bg-blue-900/50 rounded-xl sm:rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 text-xl sm:text-2xl mb-3 sm:mb-4"><i class="fa-solid fa-gears"></i></div><h3 class="text-base sm:text-lg font-black mb-1 sm:mb-2 text-slate-800 dark:text-white">প্র্যাকটিক্যাল শিক্ষা</h3><p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">আধুনিক ল্যাবে হাতে-কলমে প্রশিক্ষণ ও বাস্তব কর্মক্ষেত্রে দক্ষতা অর্জন।</p></div>
+                    <div class="bg-white dark:bg-slate-800/80 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg border border-slate-100 dark:border-white/5 hover:-translate-y-1.5 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl sm:rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-xl sm:text-2xl mb-3 sm:mb-4"><i class="fa-solid fa-briefcase"></i></div><h3 class="text-base sm:text-lg font-black mb-1 sm:mb-2 text-slate-800 dark:text-white">চাকরির সুযোগ</h3><p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">শিল্প ও প্রতিষ্ঠানের চাহিদা অনুযায়ী কোর্সকাঠামো ও ক্যারিয়ার সহায়তা।</p></div>
+                    <div class="bg-white dark:bg-slate-800/80 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg border border-slate-100 dark:border-white/5 hover:-translate-y-1.5 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-100 dark:bg-purple-900/50 rounded-xl sm:rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-400 text-xl sm:text-2xl mb-3 sm:mb-4"><i class="fa-solid fa-coins"></i></div><h3 class="text-base sm:text-lg font-black mb-1 sm:mb-2 text-slate-800 dark:text-white">স্বল্প খরচে শিক্ষা</h3><p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">মেধাবীদের জন্য ১০০% স্কলারশিপ সহ স্বল্প খরচে আন্তর্জাতিক মানের শিক্ষা।</p></div>
+                    <div class="bg-white dark:bg-slate-800/80 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg border border-slate-100 dark:border-white/5 hover:-translate-y-1.5 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl sm:rounded-2xl flex items-center justify-center text-yellow-600 dark:text-yellow-400 text-xl sm:text-2xl mb-3 sm:mb-4"><i class="fa-solid fa-graduation-cap"></i></div><h3 class="text-base sm:text-lg font-black mb-1 sm:mb-2 text-slate-800 dark:text-white">উচ্চশিক্ষার সুযোগ</h3><p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">ডিপ্লোমা শেষে বিএসসি ইন ইঞ্জিনিয়ারিং সহ উচ্চশিক্ষার বিশেষ সুযোগ।</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notice Board (BTEB Style Professional Table) & Messages -->
+        <section id="notice_board" class="scroll-reveal" x-intersect="$el.classList.add('active')">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Professional Notice Board -->
+                <div class="lg:col-span-2 glass-card rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 shadow-xl border-t-8 border-t-indigo-500 dark:border-t-brand-gold h-full flex flex-col overflow-hidden">
+                    <div class="flex justify-between items-center mb-6 sm:mb-8 border-b border-slate-200 dark:border-slate-700 pb-4">
+                        <h3 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white"><i class="fa-solid fa-clipboard-check text-indigo-500 dark:text-brand-gold mr-3"></i> নোটিশ বোর্ড</h3>
+                    </div>
+                    
+                    <div class="overflow-x-auto custom-scrollbar flex-1 max-h-[500px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-indigo-50 dark:bg-slate-800/50 text-indigo-800 dark:text-brand-gold text-xs sm:text-sm uppercase tracking-widest border-b-2 border-indigo-200 dark:border-slate-700">
+                                    <th class="py-3 px-4 font-black whitespace-nowrap">প্রকাশের তারিখ</th>
+                                    <th class="py-3 px-4 font-black">বিষয় / শিরোনাম</th>
+                                    <th class="py-3 px-4 font-black text-center whitespace-nowrap">ডাউনলোড</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-300 divide-y divide-slate-100 dark:divide-slate-800/50">
+                                <template x-if="data.notices.length === 0">
+                                    <tr><td colspan="3" class="py-8 text-center text-slate-500">কোনো নোটিশ পাওয়া যায়নি।</td></tr>
+                                </template>
+                                <template x-for="notice in data.notices" :key="notice.id">
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                        <!-- Check if it's native date format (YYYY-MM-DD), if so, format it nicely -->
+                                        <td class="py-4 px-4 whitespace-nowrap font-bold text-indigo-600 dark:text-indigo-400" x-text="formatDate(notice.date)"></td>
+                                        <td class="py-4 px-4 leading-tight">
+                                            <a :href="notice.file_url || '#'" target="_blank" class="hover:text-indigo-600 dark:hover:text-brand-gold transition-colors">
+                                                <span x-text="notice.title"></span>
+                                                <span x-show="notice.isNew" class="ml-2 inline-block px-2 py-0.5 bg-red-500 text-white text-[9px] font-black rounded-full animate-pulse align-middle">NEW</span>
+                                            </a>
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            <a :href="notice.file_url || '#'" target="_blank" x-show="notice.file_url" class="inline-flex w-10 h-10 rounded-full bg-indigo-50 dark:bg-slate-800 items-center justify-center text-indigo-600 dark:text-brand-gold hover:bg-indigo-600 hover:text-white dark:hover:bg-brand-gold dark:hover:text-slate-900 transition-all shadow-sm">
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Messages / Bani (Right - 1 Col) -->
+                <div class="lg:col-span-1 flex flex-col gap-6">
+                    <template x-for="(msg, index) in data.messages" :key="index">
+                        <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-white/50 dark:border-white/10 relative overflow-hidden group h-full">
+                            <i class="fa-solid fa-quote-right absolute -top-4 -right-2 text-8xl text-slate-100 dark:text-slate-800/50 z-0 transform group-hover:scale-110 transition-transform duration-500"></i>
+                            
+                            <div class="relative z-10 flex flex-col items-center text-center">
+                                <div class="w-28 h-28 rounded-full border-4 border-indigo-100 dark:border-slate-700 shadow-lg overflow-hidden mb-5 bg-slate-200 dark:bg-slate-800">
+                                    <img x-show="msg.image_url" :src="msg.image_url" class="w-full h-full object-cover">
+                                    <i x-show="!msg.image_url" class="fa-solid fa-user-tie text-4xl text-slate-400 dark:text-slate-500 mt-5"></i>
+                                </div>
+                                <h4 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-1" x-text="msg.name"></h4>
+                                <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-[10px] sm:text-xs font-black px-3 py-1 rounded-lg mb-5 uppercase tracking-widest" x-text="msg.designation"></span>
+                                <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-semibold italic leading-relaxed" x-text="'“' + msg.message + '”'"></p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Dynamic Departments -->
+        <section id="departments" class="scroll-reveal" x-intersect="$el.classList.add('active')">
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-4">আমাদের <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500 dark:from-brand-gold dark:to-yellow-500">বিভাগসমূহ</span></h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-12 sm:mb-16">
+                <div class="glass-card p-6 sm:p-10 rounded-[2rem] border-t-8 border-t-blue-500 dark:border-t-brand-gold group hover:-translate-y-2 transition-transform">
+                    <div class="flex items-center space-x-4 sm:space-x-5 mb-6 sm:mb-8">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 dark:bg-slate-800 text-blue-600 dark:text-brand-gold rounded-2xl sm:rounded-3xl flex items-center justify-center text-3xl sm:text-4xl shadow-inner border border-blue-200 dark:border-slate-700 group-hover:scale-110 transition-transform shrink-0"><i class="fa-solid fa-desktop"></i></div>
+                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white leading-tight">কম্পিউটার সায়েন্স <br>অ্যান্ড টেকনোলজি</h3>
+                    </div>
+                    <ul class="space-y-3 sm:space-y-4 text-slate-600 dark:text-slate-300 font-bold text-sm sm:text-lg">
+                        <li class="flex items-start"><i class="fa-solid fa-check-circle text-blue-500 dark:text-brand-gold mt-1 mr-3 text-lg sm:text-xl"></i> আধুনিক কম্পিউটার ল্যাবে হাতে-কলমে শিক্ষা</li>
+                        <li class="flex items-start"><i class="fa-solid fa-check-circle text-blue-500 dark:text-brand-gold mt-1 mr-3 text-lg sm:text-xl"></i> সফটওয়্যার, প্রোগ্রামিং, নেটওয়ার্কিং ও আইটি দক্ষতা উন্নয়ন</li>
+                    </ul>
+                </div>
+                
+                <div class="glass-card p-6 sm:p-10 rounded-[2rem] border-t-8 border-t-yellow-500 dark:border-t-yellow-400 group hover:-translate-y-2 transition-transform">
+                    <div class="flex items-center space-x-4 sm:space-x-5 mb-6 sm:mb-8">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-100 dark:bg-slate-800 text-yellow-600 dark:text-yellow-400 rounded-2xl sm:rounded-3xl flex items-center justify-center text-3xl sm:text-4xl shadow-inner border border-yellow-200 dark:border-slate-700 group-hover:scale-110 transition-transform shrink-0"><i class="fa-solid fa-bolt"></i></div>
+                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white leading-tight">ইলেকট্রিক্যাল <br>টেকনোলজি</h3>
+                    </div>
+                    <ul class="space-y-3 sm:space-y-4 text-slate-600 dark:text-slate-300 font-bold text-sm sm:text-lg">
+                        <li class="flex items-start"><i class="fa-solid fa-check-circle text-yellow-500 dark:text-yellow-400 mt-1 mr-3 text-lg sm:text-xl"></i> আধুনিক ইলেকট্রিক্যাল ল্যাবে ব্যবহারিক প্রশিক্ষণ</li>
+                        <li class="flex items-start"><i class="fa-solid fa-check-circle text-yellow-500 dark:text-yellow-400 mt-1 mr-3 text-lg sm:text-xl"></i> ইলেকট্রিক্যাল ইন্সটলেশন সিস্টেম, মোটর কন্ট্রোল ও পাওয়ার টেকনোলজি</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Admission & Short Courses Section -->
+        <section id="admission" class="scroll-reveal" x-intersect="$el.classList.add('active')">
+            <div class="text-center mb-10 sm:mb-12">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-4">ভর্তি যোগ্যতা ও <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500 dark:from-brand-gold dark:to-yellow-500">প্রয়োজনীয় কাগজপত্র</span></h2>
+                <div x-show="data.site.admissionNotice" class="mt-4 inline-block px-6 sm:px-8 py-2 sm:py-3 bg-red-100 dark:bg-red-900/30 border-2 border-red-300 dark:border-red-700 rounded-xl sm:rounded-2xl text-red-800 dark:text-red-400 font-black text-sm sm:text-lg animate-pulse" x-text="data.site.admissionNotice"></div>
+            </div>
+
+            <div class="glass-card rounded-[2rem] sm:rounded-[3rem] p-5 sm:p-12">
+                <div class="flex flex-col md:flex-row gap-6 sm:gap-10">
+                    
+                    <!-- Diploma -->
+                    <div class="md:w-1/2 space-y-8">
+                        <div class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] shadow-lg border-t-8 border-indigo-500 h-full flex flex-col justify-between border border-slate-100 dark:border-slate-700">
+                            <div>
+                                <h3 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-6 sm:mb-8 border-b-2 border-slate-100 dark:border-slate-700 pb-3 sm:pb-4">ডিপ্লোমায় ভর্তির যোগ্যতা</h3>
+                                <ul class="space-y-4 sm:space-y-5">
+                                    <li class="flex items-start"><i class="fa-solid fa-check-circle text-indigo-500 mt-1 mr-3 sm:mr-4 text-lg sm:text-xl"></i><span class="text-slate-700 dark:text-slate-300 font-bold text-sm sm:text-lg">এসএসসি ও সমমান পরীক্ষায় যেকোনো বিভাগ থেকে <strong class="text-slate-900 dark:text-white text-base sm:text-xl">ন্যূনতম জিপিএ ২.০০</strong> পেয়ে উত্তীর্ণ হতে হবে।</span></li>
+                                    <li class="flex items-start p-4 sm:p-6 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl sm:rounded-2xl border-2 border-yellow-200 dark:border-yellow-700/50 mt-4 sm:mt-6"><i class="fa-solid fa-star text-yellow-500 mt-1 mr-3 sm:mr-4 text-xl sm:text-2xl"></i>
+                                        <div>
+                                            <strong class="block text-yellow-700 dark:text-yellow-400 text-lg sm:text-xl font-black mb-1 sm:mb-2">১০০% স্কলারশিপের সুযোগ:</strong>
+                                            <span class="text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm">বিজ্ঞান বিভাগে জিপিএ ৪.০০ এবং অন্যান্য বিভাগে জিপিএ ৪.৫০ পেলে ১০০% টিউশন ফি ফ্রি।</span>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                <h4 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white mt-8 sm:mt-10 mb-4 sm:mb-5 border-b border-slate-100 dark:border-slate-700 pb-2">প্রয়োজনীয় কাগজপত্র:</h4>
+                                <ul class="space-y-2 sm:space-y-3 text-sm sm:text-base font-bold text-slate-600 dark:text-slate-400">
+                                    <li><i class="fa-solid fa-caret-right text-indigo-500 mr-2"></i> সদ্য তোলা ৪ কপি পাসপোর্ট সাইজের ছবি।</li>
+                                    <li><i class="fa-solid fa-caret-right text-indigo-500 mr-2"></i> অনলাইন জন্মনিবন্ধন বা এনআইডি এর ফটোকপি।</li>
+                                    <li><i class="fa-solid fa-caret-right text-indigo-500 mr-2"></i> এসএসসি মার্কশিট ও প্রশংসাপত্রের ফটোকপি (২ কপি) ও মূলকপি।</li>
+                                </ul>
+                                <div class="mt-8 text-center"><button @click="admissionModal = true" class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 transition-colors w-full"><i class="fa-solid fa-file-pen mr-2"></i> অনলাইনে ভর্তি আবেদন</button></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Short Courses -->
+                    <div class="md:w-1/2 space-y-8">
+                        <div class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] shadow-lg border-t-8 border-emerald-500 h-full flex flex-col justify-between border border-slate-100 dark:border-slate-700">
+                            <div>
+                                <div class="flex flex-col sm:flex-row justify-between sm:items-start mb-6 sm:mb-8 border-b-2 border-slate-100 dark:border-slate-700 pb-4 gap-2">
+                                    <h3 class="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-0">NSDA শর্ট কোর্সসমূহ</h3>
+                                    <span class="bg-emerald-100 dark:bg-emerald-500 text-emerald-800 dark:text-slate-900 text-[10px] sm:text-xs font-black px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg w-fit">STP-CHA-001099</span>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 gap-3 sm:gap-4 mb-6 sm:mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                    <template x-for="(course, index) in data.courses.filter(c => c.type === 'nsda')" :key="course.id">
+                                        <div class="flex items-center justify-between p-3 sm:p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700 gap-2">
+                                            <span class="font-bold text-sm sm:text-base flex-1 leading-tight text-slate-800 dark:text-white">
+                                                <span class="text-emerald-500 dark:text-emerald-400 text-lg sm:text-xl mr-2 sm:mr-3 font-black" x-text="String(index+1).padStart(2, '0')"></span><span x-text="course.title"></span>
+                                            </span>
+                                            <span class="text-[10px] sm:text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg font-black shrink-0 whitespace-nowrap" x-text="course.level"></span>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <h4 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white mt-8 sm:mt-10 mb-4 sm:mb-5 border-b border-slate-100 dark:border-slate-700 pb-2">ভর্তির যোগ্যতা ও শর্ত:</h4>
+                                <ul class="space-y-2 sm:space-y-3 text-sm sm:text-base font-bold text-slate-600 dark:text-slate-400">
+                                    <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> সর্বনিম্ন এসএসসি/দাখিল ও সমমান পরীক্ষায় উত্তীর্ণ।</li>
+                                    <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> সর্বোচ্চ বয়স সীমা ৩৫ বছর।</li>
+                                    <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> উত্তীর্ণদের জন্য দেশীয় ও আন্তর্জাতিক কর্মসংস্থানের সুযোগ।</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Events & Gallery -->
+        <section id="events" class="scroll-reveal" x-intersect="$el.classList.add('active')">
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-3">গ্যালারি ও <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500 dark:from-brand-gold dark:to-yellow-500">প্রতিবেদন</span></h2>
+                <p class="text-slate-600 dark:text-slate-400 font-bold text-sm sm:text-lg">প্রতিষ্ঠান প্রাঙ্গণে আয়োজিত বিভিন্ন সেমিনার, উৎসব ও কর্মশালার প্রামাণ্য চিত্র।</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
+                <template x-if="data.events.length === 0"><div class="col-span-full text-center text-gray-500 py-10 font-black text-lg sm:text-xl">কোনো গ্যালারি আইটেম পাওয়া যায়নি।</div></template>
+                <template x-for="(event, index) in data.events" :key="event.id">
+                    <div class="glass-card rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden group hover:-translate-y-2 sm:hover:-translate-y-4 hover:shadow-2xl transition-all duration-500 flex flex-col border border-white/50 dark:border-slate-700" :style="`transition-delay: ${index * 0.1}s`">
+                        <div class="relative h-56 sm:h-64 overflow-hidden bg-slate-200 dark:bg-slate-800 shrink-0">
+                            <template x-if="event.file_url">
+                                <img :src="event.file_url" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            </template>
+                            <template x-if="!event.file_url">
+                                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-700 flex items-center justify-center"><i class="fa-solid fa-image text-5xl sm:text-6xl text-white/30"></i></div>
+                            </template>
+                            <div class="absolute top-4 left-4 sm:top-5 sm:left-5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black text-slate-900 dark:text-white shadow-xl border border-white/20 dark:border-slate-700"><i class="fa-regular fa-calendar-check text-indigo-500 mr-1.5"></i> <span x-text="formatDate(event.date)"></span></div>
+                        </div>
+                        <div class="p-6 sm:p-8 flex-1 flex flex-col bg-white/40 dark:bg-slate-900/40">
+                            <div class="flex items-center mb-3 sm:mb-4"><span class="px-2.5 sm:px-3 py-1 bg-indigo-100 dark:bg-slate-800 text-indigo-700 dark:text-indigo-400 text-[9px] sm:text-[10px] font-black rounded-lg uppercase tracking-widest border border-indigo-200 dark:border-slate-600" x-text="event.category || 'অনুষ্ঠান'"></span></div>
+                            <h3 class="text-lg sm:text-xl font-black text-gray-900 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-brand-gold transition-colors line-clamp-2 leading-tight" x-text="event.title"></h3>
+                            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium line-clamp-3 leading-relaxed" x-text="event.desc"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+        <!-- Teachers Section -->
+        <section id="teachers" class="scroll-reveal" x-intersect="$el.classList.add('active')">
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-4">অভিজ্ঞ <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500 dark:from-brand-gold dark:to-yellow-500">শিক্ষকমণ্ডলী</span></h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-h-[600px] overflow-y-auto pr-2 pb-4 custom-scrollbar">
+                <template x-for="(teacher, index) in data.teachers" :key="teacher.id">
+                    <div class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 text-center hover:-translate-y-2 sm:hover:-translate-y-3 hover:shadow-2xl transition-all duration-500 group border border-white/50 dark:border-slate-700" :style="`transition-delay: ${index * 0.1}s`">
+                        <div class="w-28 h-28 sm:w-32 sm:h-32 mx-auto rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-slate-700 dark:to-slate-800 p-1.5 mb-4 sm:mb-5 shadow-inner border border-indigo-200 dark:border-slate-600 group-hover:border-indigo-500 transition-colors">
+                            <div class="w-full h-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden shadow-md">
+                                <template x-if="teacher.file_url"><img :src="teacher.file_url" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"></template>
+                                <template x-if="!teacher.file_url"><i class="fa-solid fa-user-tie text-3xl sm:text-4xl text-slate-300 dark:text-slate-600 group-hover:scale-110 transition-transform duration-500"></i></template>
+                            </div>
+                        </div>
+                        <h4 class="text-lg sm:text-xl font-black text-gray-900 dark:text-white mb-1 leading-tight" x-text="teacher.name"></h4>
+                        <p class="text-indigo-600 dark:text-yellow-400 font-bold text-xs sm:text-sm mb-2 uppercase tracking-wider" x-text="teacher.deg"></p>
+                        <p class="text-[10px] sm:text-xs text-gray-600 dark:text-gray-300 bg-slate-100 dark:bg-slate-800 py-1.5 px-3 rounded-lg inline-block font-semibold border border-slate-200 dark:border-slate-700 shadow-sm" x-text="teacher.dept"></p>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-20 glass-card border-x-0 border-b-0 rounded-t-[3rem] sm:rounded-t-[4rem] pt-16 sm:pt-20 pb-8 relative overflow-hidden">
+        <div class="absolute bottom-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-brand-gold/10 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute top-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-indigo-500/10 rounded-full blur-3xl -z-10"></div>
+        
+        <div class="container mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
+            <div>
+                <div class="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-tr from-brand-blue to-indigo-600 dark:from-brand-gold dark:to-yellow-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-white dark:text-slate-900 shadow-lg"><i class="fa-solid fa-graduation-cap text-xl sm:text-2xl"></i></div>
+                    <h3 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-none">ASPI</h3>
+                </div>
+                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-bold mb-6 sm:mb-8 leading-relaxed">কারিগরি শিক্ষায় শিক্ষিত জাতিই পারে দেশের প্রকৃত উন্নয়ন সাধন করতে। আধুনিক প্রযুক্তিনির্ভর শিক্ষায় আমরা বদ্ধপরিকর।</p>
+                <div class="flex space-x-3 sm:space-x-4">
+                    <a href="#" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 transition-all shadow-md hover:scale-110 text-lg sm:text-xl border border-slate-100 dark:border-slate-700"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 transition-all shadow-md hover:scale-110 text-lg sm:text-xl border border-slate-100 dark:border-slate-700"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white mb-4 sm:mb-6 border-b border-slate-200 dark:border-slate-700 pb-2 inline-block">কোর্সসমূহ</h4>
+                <ul class="space-y-3 sm:space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-bold">
+                    <template x-for="course in data.courses" :key="course.id">
+                        <li class="flex items-start"><i class="fa-solid fa-angle-right text-indigo-500 dark:text-brand-gold mt-0.5 sm:mt-1 mr-2 sm:mr-3 text-sm sm:text-lg"></i> <span x-text="course.title"></span></li>
+                    </template>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white mb-4 sm:mb-6 border-b border-slate-200 dark:border-slate-700 pb-2 inline-block">প্রয়োজনীয় লিংক</h4>
+                <ul class="space-y-3 sm:space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-bold">
+                    <li><a href="https://bteb.gov.bd/" target="_blank" class="hover:text-indigo-600 dark:hover:text-brand-gold flex items-center"><i class="fa-solid fa-link text-indigo-500 dark:text-brand-gold mr-2 sm:mr-3"></i> বাংলাদেশ কারিগরি শিক্ষা বোর্ড</a></li>
+                    <li><a href="https://nsda.gov.bd/" target="_blank" class="hover:text-indigo-600 dark:hover:text-brand-gold flex items-center"><i class="fa-solid fa-link text-indigo-500 dark:text-brand-gold mr-2 sm:mr-3"></i> দক্ষতা উন্নয়ন কর্তৃপক্ষ (NSDA)</a></li>
+                    <li><a href="#admission" class="hover:text-indigo-600 dark:hover:text-brand-gold flex items-center"><i class="fa-solid fa-link text-indigo-500 dark:text-brand-gold mr-2 sm:mr-3"></i> অনলাইনে ভর্তি আবেদন</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white mb-4 sm:mb-6 border-b border-slate-200 dark:border-slate-700 pb-2 inline-block">যোগাযোগ</h4>
+                <ul class="space-y-4 sm:space-y-5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-bold">
+                    <li class="flex items-start"><i class="fa-solid fa-location-dot mt-0.5 sm:mt-1 text-indigo-500 dark:text-brand-gold mr-3 sm:mr-4 text-lg sm:text-xl"></i><span x-text="data.site.address || 'দক্ষিণ হাশিমপুর, দোহাজারী, চন্দনাইশ, চট্টগ্রাম।'"></span></li>
+                    <li class="flex items-center"><i class="fa-solid fa-phone text-indigo-500 dark:text-brand-gold mr-3 sm:mr-4 text-lg sm:text-xl"></i><span x-text="data.site.phone"></span></li>
+                    <li class="flex items-center"><i class="fa-solid fa-envelope text-indigo-500 dark:text-brand-gold mr-3 sm:mr-4 text-lg sm:text-xl"></i><span x-text="data.site.email"></span></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="text-center text-xs sm:text-sm font-black text-slate-500 dark:text-slate-400 mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-slate-200/50 dark:border-slate-800"><p>&copy; 2026 আসহাব সিরাজ পলিটেকনিক ইনস্টিটিউট। সর্বস্বত্ব সংরক্ষিত।</p></div>
+    </footer>
+
+    <!-- Alpine App Logic -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('frontendApp', () => ({
+                darkMode: false,
+                mobileMenuOpen: false,
+                admissionModal: false,
+                isSubmitting: false,
+                admissionForm: { name: '', phone: '', course_type: '', course_name: '', gpa: '' },
+                data: { site: { font_size: '16', custom_font: '', admissionOpen: false }, messages: [], notices: [], events: [], teachers: [], courses: [] },
+                
+                init() {
+                    if (window.matchMedia('(prefers-color-scheme: dark)').matches) this.darkMode = true;
+                    this.fetchData();
+                    setInterval(() => this.fetchData(), 300000);
+                },
+                toggleTheme() {
+                    this.darkMode = !this.darkMode;
+                    if(this.darkMode) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark');
+                },
+                formatDate(dateStr) {
+                    if(!dateStr) return '';
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    try { return new Date(dateStr).toLocaleDateString('bn-BD', options); } 
+                    catch(e) { return dateStr; }
+                },
+                async fetchData() {
+                    try {
+                        let res = await fetch('api.php?t=' + Date.now(), { cache: 'no-store' });
+                        let jsonData = await res.json();
+                        if(!jsonData.error) { this.data = jsonData; }
+                    } catch (err) { console.error("Error loading data", err); }
+                },
+                async submitAdmission() {
+                    this.isSubmitting = true;
+                    try {
+                        let res = await fetch('api.php?action=submit_admission', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.admissionForm)
+                        });
+                        let result = await res.json();
+                        if(result.status === 'success') {
+                            alert("ধন্যবাদ! আপনার আবেদনটি সফলভাবে গৃহীত হয়েছে। খুব শীঘ্রই আমরা আপনার সাথে যোগাযোগ করব।");
+                            this.admissionModal = false;
+                            this.admissionForm = { name: '', phone: '', course_type: '', course_name: '', gpa: '' };
+                        } else {
+                            alert("আবেদন গ্রহণে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+                        }
+                    } catch (e) {
+                        alert("ইন্টারনেট কানেকশন চেক করুন!");
+                    }
+                    this.isSubmitting = false;
+                }
+            }))
+        });
+    </script>
+</body>
+</html>
